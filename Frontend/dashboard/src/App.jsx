@@ -1,12 +1,20 @@
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import "./App.css"; // Import external stylesheet
+import "./App.css"; 
 
 export default function Dashboard() {
   const [updates, setUpdates] = useState([]);
 
+  const formatTimestamp = (timestamp) => {
+    const date = new Date(parseInt(timestamp) * 1000);
+    return date.toLocaleTimeString();
+  };
+
   useEffect(() => {
-    const socket = io("http://localhost:5000"); // Adjust backend URL if needed
+    const storedUpdates = JSON.parse(localStorage.getItem('logs')) || [];
+    setUpdates(storedUpdates);
+
+    const socket = io("http://localhost:5000"); 
 
     socket.on("connect", () => {
       console.log("Connected to WebSocket");
@@ -15,13 +23,30 @@ export default function Dashboard() {
 
     socket.on("ambulance_signal_update", (data) => {
       console.log("New update received:", data);
-      setUpdates((prevUpdates) => [data, ...prevUpdates]);
+
+      setUpdates((prevUpdates) => {
+        const updatedLogs = [data, ...prevUpdates]; 
+        localStorage.setItem('logs', JSON.stringify(updatedLogs)); 
+        return updatedLogs; 
+      });
+    });
+
+    socket.on("ambulance_signal_crossed", (data) => {
+      console.log("Ambulance crossed signal:", data);
+
+      setUpdates((prevUpdates) => {
+        const updatedLogs = prevUpdates.filter(
+          (update) => !(update.order_id === data.order_id && update.signal_id === data.signal_id)
+        );
+        localStorage.setItem('logs', JSON.stringify(updatedLogs)); 
+        return updatedLogs; 
+      });
     });
 
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, []); 
 
   return (
     <div className="dashboard-container">
@@ -31,7 +56,7 @@ export default function Dashboard() {
         <ul className="updates-list">
           {updates.map((update, index) => (
             <li key={index} className="update-item">
-              🚑 Ambulance {update.order_id} is near signal {update.signal_id} at {update.timestamp}
+              🚑 Ambulance {update.order_id} is near signal {update.signal_id} at {formatTimestamp(update.timestamp)}
             </li>
           ))}
         </ul>

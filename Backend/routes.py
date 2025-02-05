@@ -17,28 +17,12 @@ def handle_disconnect():
 
 # Function to listen to Redis channel and emit events to WebSocket clients
 def listen_to_redis():
-    print("Starting Redis listener function...")
-
-    while True:
-        try:
-            print("Checking Redis connection...")
-            if redis_client.ping():
-                print("Redis is connected successfully!")
-            else:
-                print("Redis ping failed!")
-                time.sleep(5)
-                continue  # Retry after 5 seconds
-        except redis.exceptions.ConnectionError as e:
-            print("Redis connection error:", e)
-            time.sleep(5)
-            continue  # Retry after 5 seconds
 
         pubsub = redis_client.pubsub()
         pubsub.subscribe('ambulance_updates')
         print("Subscribed to Redis channel: ambulance_updates")
 
         for message in pubsub.listen():
-            print("Raw message received from Redis:", message)  # Debug Redis message
 
             if message['type'] == 'message':
                 try:
@@ -61,8 +45,39 @@ def listen_to_redis():
                 except Exception as e:
                     print("Error processing Redis message:", e)
 
+
+def listen_for_crossed_signal():
+    print("Listening for crossed signal updates...")
+
+    while True:
+        pubsub = redis_client.pubsub()
+        pubsub.subscribe('signal_crossed_updates')  # New Redis channel for signal crossed updates
+        print("📡 Subscribed to Redis channel: signal_crossed_updates")
+
+        for message in pubsub.listen():
+            print("📩 Raw message received from Redis:", message)
+
+            if message['type'] == 'message':
+                data = message['data']
+                print("🔄 Processing Redis crossed signal message:", data)
+
+                # Extract order_id and signal_id to remove corresponding log
+                order_id, signal_id = data.split(",")
+                crossed_data = {
+                    'order_id': order_id,
+                    'signal_id': signal_id
+                }
+
+                # Emit to frontend to remove the specific log
+                socketio.emit('ambulance_signal_crossed', crossed_data)
+                print("📡 Event emitted to WebSocket clients for crossed signal.")
+
 # Start Redis listener in a separate thread so it doesn't block the main thread
 def start_redis_listener():
     redis_thread = threading.Thread(target=listen_to_redis)
     redis_thread.daemon = True  # Allow thread to be killed when app exits
     redis_thread.start()
+
+    signal_thread = threading.Thread(target=listen_for_crossed_signal)
+    signal_thread.daemon = True  # Allow thread to be killed when app exits
+    signal_thread.start()
