@@ -1,9 +1,8 @@
 import threading
 import time
 from flask import Blueprint
-from flask_socketio import emit
 import redis
-from .extensions import redis_client, socketio  # Import from __init__.py
+from .extensions import redis_client, socketio 
 
 # Blueprint for WebSocket events
 events = Blueprint('events', __name__)
@@ -24,22 +23,22 @@ def listen_to_redis():
         try:
             print("Checking Redis connection...")
             if redis_client.ping():
-                print("✅ Redis is connected successfully!")
+                print("Redis is connected successfully!")
             else:
-                print("❌ Redis ping failed!")
+                print("Redis ping failed!")
                 time.sleep(5)
                 continue  # Retry after 5 seconds
         except redis.exceptions.ConnectionError as e:
-            print("❌ Redis connection error:", e)
+            print("Redis connection error:", e)
             time.sleep(5)
             continue  # Retry after 5 seconds
 
         pubsub = redis_client.pubsub()
         pubsub.subscribe('ambulance_updates')
-        print("📡 Subscribed to Redis channel: ambulance_updates")
+        print("Subscribed to Redis channel: ambulance_updates")
 
         for message in pubsub.listen():
-            print("📩 Raw message received from Redis:", message)  # Debug Redis message
+            print("Raw message received from Redis:", message)  # Debug Redis message
 
             if message['type'] == 'message':
                 try:
@@ -55,12 +54,12 @@ def listen_to_redis():
                         'signal_id': signal_id
                     }
 
-                    print("✅ Processed update:", event_data)
+                    print("Processed update:", event_data)
                     socketio.emit('ambulance_signal_update', event_data)
                     print("📡 Event emitted to WebSocket clients.")
 
                 except Exception as e:
-                    print("❌ Error processing Redis message:", e)
+                    print("Error processing Redis message:", e)
 
 # Start Redis listener in a separate thread so it doesn't block the main thread
 def start_redis_listener():
