@@ -1,12 +1,11 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_socketio import SocketIO
+from .extensions import socketio
 import redis
+
 from .routes import events, start_redis_listener
 
-
 db = SQLAlchemy()
-socketio = SocketIO(cors_allowed_origins="*") 
 redis_client = redis.StrictRedis.from_url("redis://localhost:6379/0", decode_responses=True)
 
 def create_app():
@@ -17,13 +16,10 @@ def create_app():
     db.init_app(app)
     socketio.init_app(app)
 
+    # Register events blueprint
     app.register_blueprint(events)
 
     # Start Redis listener in a background thread
-    with app.app_context():
-        start_redis_listener()
+    start_redis_listener()
+
     return app
-
-
-
-

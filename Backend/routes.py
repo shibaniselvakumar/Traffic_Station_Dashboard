@@ -1,14 +1,11 @@
-import time
-from flask import Flask, current_app
-from flask_sqlalchemy import SQLAlchemy
-from flask_socketio import SocketIO, emit
-import redis
 import threading
-from .extensions import redis_client, socketio
+import time
+from flask import Blueprint
+from flask_socketio import emit
+import redis
+from .extensions import redis_client, socketio  # Import from __init__.py
 
 # Blueprint for WebSocket events
-from flask import Blueprint
-
 events = Blueprint('events', __name__)
 
 @socketio.on('connect')
@@ -59,8 +56,7 @@ def listen_to_redis():
                     }
 
                     print("✅ Processed update:", event_data)
-                    with current_app.app_context():
-                        socketio.emit('ambulance_signal_update', event_data)
+                    socketio.emit('ambulance_signal_update', event_data)
                     print("📡 Event emitted to WebSocket clients.")
 
                 except Exception as e:
@@ -68,4 +64,6 @@ def listen_to_redis():
 
 # Start Redis listener in a separate thread so it doesn't block the main thread
 def start_redis_listener():
-    socketio.start_background_task(target=listen_to_redis)
+    redis_thread = threading.Thread(target=listen_to_redis)
+    redis_thread.daemon = True  # Allow thread to be killed when app exits
+    redis_thread.start()
