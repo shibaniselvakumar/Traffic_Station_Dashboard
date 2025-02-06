@@ -34,7 +34,7 @@ def listen_to_redis(app):
                     }
 
                     socketio.emit('ambulance_signal_update', event_data)
-                    print("📡 Event emitted to WebSocket clients.")
+                    print("Event emitted to WebSocket clients.")
 
                 except Exception as e:
                     print("Error processing Redis message:", e)
@@ -43,12 +43,12 @@ def listen_for_crossed_signal(app):
     with app.app_context():  # Explicitly using the app context
         pubsub = redis_client.pubsub()
         pubsub.subscribe('signal_crossed_updates')
-        print("📡 Subscribed to Redis channel: signal_crossed_updates")
+        print("Subscribed to Redis channel: signal_crossed_updates")
 
         for message in pubsub.listen():
             if message['type'] == 'message':
                 data = message['data']
-                print("🔄 Processing Redis crossed signal message:", data)
+                print("Processing Redis crossed signal message:", data)
 
                 order_id, signal_id = data.split(",")
                 crossed_data = {
@@ -57,7 +57,7 @@ def listen_for_crossed_signal(app):
                 }
 
                 socketio.emit('ambulance_signal_crossed', crossed_data)
-                print("📡 Event emitted to WebSocket clients for crossed signal.")
+                print("Event emitted to WebSocket clients for crossed signal.")
 
 def start_redis_listener(app):
     threading.Thread(target=listen_to_redis, args=(app,), daemon=True).start()
