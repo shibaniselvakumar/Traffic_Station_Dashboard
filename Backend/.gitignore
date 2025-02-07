@@ -1,0 +1,7 @@
+# Python virtual environment
+dash-env/
+
+# Python compiled files
+__pycache__/
+*.pyc
+*.pyo
