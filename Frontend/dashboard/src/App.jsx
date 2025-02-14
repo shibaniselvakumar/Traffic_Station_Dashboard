@@ -19,7 +19,7 @@ export default function Dashboard() {
 
     socket.on("connect", () => {
       console.log("Connected to WebSocket");
-      socket.emit("join_room", "dashboard");
+      socket.emit("join_room", {"room" : "dashboard"});
     });
 
     socket.on("ambulance_signal_update", (data) => {
