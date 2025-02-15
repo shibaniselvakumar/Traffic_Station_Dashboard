@@ -152,3 +152,8 @@ body, html {
     font-size: 1rem;
   }
 }
+
+.done-button{
+  background-color: #091057;
+  color: #f4f6f9;
+}

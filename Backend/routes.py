@@ -22,7 +22,7 @@ def listen_to_redis(app):
             if message['type'] == 'message':
                 try:
                     data = message['data']
-                    print("🔄 Processing Redis message:", data)
+                    print("Processing Redis message:", data)
 
                     order_id, latitude, longitude, timestamp, signal_id = data.split(",")
                     event_data = {
