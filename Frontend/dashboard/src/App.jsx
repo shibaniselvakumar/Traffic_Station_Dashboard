@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import "./App.css"; 
 import logo from './assets/logo.png'; 
+const link="wss://eee4-2409-40f4-a6-adcf-3d94-8f18-5e69-5bb8.ngrok-free.app/"
 
 export default function Dashboard() {
   const [updates, setUpdates] = useState([]);
@@ -15,7 +16,7 @@ export default function Dashboard() {
     const storedUpdates = JSON.parse(localStorage.getItem('logs') || "[]");
     setUpdates(storedUpdates);
 
-    const socket = io("http://localhost:5000", { transports: ["websocket"] });
+    const socket = io(`${link}`, { transports: ["websocket"] });
 
     socket.on("connect", () => {
       console.log("Connected to WebSocket");
@@ -43,7 +44,7 @@ export default function Dashboard() {
     });
 
     return () => {
-      socket.disconnect();
+      //socket.disconnect();
     };
   }, []);
 

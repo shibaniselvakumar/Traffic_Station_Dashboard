@@ -7,7 +7,7 @@ body, html {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f4f6f9;
+  background-color:  #ffffff;
 }
 
 /* Dashboard Container */
@@ -20,7 +20,7 @@ body, html {
   align-items: center;
   padding: 20px;
   box-sizing: border-box;
-  background-color: #eef2f6;
+  background-color: #ffffff;
 }
 
 /* Header */
@@ -52,7 +52,7 @@ body, html {
 
 /* Logo Styling */
 .header-logo {
-  width: 50px;
+  width: 80px;
   height: auto;
   margin-right: 20px;
 }
