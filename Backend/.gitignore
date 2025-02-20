@@ -1,9 +1,0 @@
-# Python virtual environment
-dash-env/
-venv
-
-# Python compiled files
-__pycache__/
-*.py[cod]
-*.pyc
-*.pyo

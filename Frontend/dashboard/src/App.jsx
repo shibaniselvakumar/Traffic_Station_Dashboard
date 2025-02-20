@@ -30,6 +30,16 @@ export default function Dashboard() {
         localStorage.setItem('logs', JSON.stringify(updatedLogs));
         return updatedLogs;
       });
+
+      setTimeout(() => {
+        setUpdates((prevUpdates) => {
+          const updatedLogs = prevUpdates.filter(
+            (update) => !(update.order_id === data.order_id && update.signal_id === data.signal_id)
+          );
+          localStorage.setItem('logs', JSON.stringify(updatedLogs));
+          return updatedLogs;
+        });
+      }, 60000);
     });
 
     socket.on("ambulance_signal_crossed", (data) => {
