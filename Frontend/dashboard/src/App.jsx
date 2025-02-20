@@ -39,7 +39,7 @@ export default function Dashboard() {
           localStorage.setItem('logs', JSON.stringify(updatedLogs));
           return updatedLogs;
         });
-      }, 60000);
+      }, 13000);
     });
 
     socket.on("ambulance_signal_crossed", (data) => {
